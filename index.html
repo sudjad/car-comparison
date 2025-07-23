@@ -108,7 +108,8 @@
           results.innerHTML = '<p>Sorry, no matching cars found. Try adjusting your preferences.</p>';
         }
         results.style.display = 'block';
-      } catch {
+      } catch (err) {
+        console.error('Fetch error:', err);
         results.innerHTML = '<p>Error fetching data. Please try again.</p>';
         results.style.display = 'block';
       }
