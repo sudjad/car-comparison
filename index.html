@@ -1,0 +1,124 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CarFinder Demo</title>
+  <style>
+    /* Base and layout */
+    body { margin:0; font-family:sans-serif; line-height:1.5; color:#333; }
+    a { text-decoration:none; color:inherit; }
+    .container { max-width:1200px; margin:0 auto; padding:0 1rem; }
+    /* Top bar */
+    .top-bar { background:#f8f8f8; font-size:0.875rem; padding:0.5rem 0; text-align:right; }
+    .top-bar span { margin-right:1rem; }
+    /* Header */
+    header { background:#fff; box-shadow:0 2px 4px rgba(0,0,0,0.1); }
+    .nav { display:flex; align-items:center; justify-content:space-between; padding:1rem 0; }
+    .nav .logo { font-size:1.5rem; font-weight:bold; color:#d32f2f; }
+    .nav ul { display:flex; gap:1rem; list-style:none; margin:0; padding:0; }
+    .nav ul li a { padding:0.5rem 1rem; border-radius:4px; transition:background .2s; }
+    .nav ul li a:hover { background:rgba(211,47,47,0.1); }
+    /* Hero */
+    .hero { background:url('https://via.placeholder.com/1200x400') center/cover no-repeat; color:#fff; text-align:center; padding:4rem 1rem; position:relative; }
+    .hero::after { content:''; position:absolute; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.4); }
+    .hero-content { position:relative; z-index:1; max-width:600px; margin:0 auto; }
+    .hero h1 { font-size:2.5rem; margin-bottom:1rem; }
+    /* Form */
+    #form-container { background:#fff; padding:2rem; border-radius:8px; box-shadow:0 4px 8px rgba(0,0,0,0.05); margin-top:-4rem; position:relative; z-index:2; }
+    form { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    form input, form button { padding:0.75rem; font-size:1rem; border:1px solid #ccc; border-radius:4px; width:100%; }
+    form button { background:#d32f2f; color:#fff; border:none; cursor:pointer; grid-column:span 2; }
+    /* Results */
+    #results { display:none; margin-top:1rem; padding:1rem; background:#fff; border:1px solid #eee; border-radius:4px; max-height:400px; overflow-y:auto; }
+    #edit-button { display:none; margin:1rem 0; padding:0.75rem 1rem; background:#1976d2; color:#fff; border:none; border-radius:4px; cursor:pointer; }
+    /* Mobile */
+    @media(max-width:600px){
+      form { grid-template-columns:1fr; }
+      .nav ul { display:none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="top-bar container">
+    <span>Mon - Fri: 9am - 6pm</span>
+    <span>Call us: +91 98765 43210</span>
+  </div>
+  <header class="container">
+    <nav class="nav">
+      <div class="logo">CarFinder</div>
+      <ul>
+        <li><a href="#">Home</a></li>
+        <li><a href="#">Find Car</a></li>
+        <li><a href="#">About</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Find Your Perfect Ride</h1>
+      <p>Answer a few quick questions and we'll match you with the ideal car.</p>
+    </div>
+  </section>
+
+  <main class="container">
+    <div id="form-container">
+      <form id="car-form">
+        <input id="city" name="city" placeholder="City (e.g. Mumbai)" required />
+        <input id="familySize" name="familySize" placeholder="Family size (e.g. 4)" required />
+        <input id="parkingType" name="parkingType" placeholder="Parking type (Indoor/Outdoor)" required />
+        <input id="priority" name="priority" placeholder="Priority (comfort and safety…)" required />
+        <input id="budget" name="budget" placeholder="Total budget (INR, e.g. 1000000)" required />
+        <button type="submit">Find My Car</button>
+      </form>
+    </div>
+
+    <button id="edit-button">Edit My Preferences</button>
+    <div id="results"></div>
+  </main>
+
+  <script>
+    const formContainer = document.getElementById('form-container');
+    const form = document.getElementById('car-form');
+    const results = document.getElementById('results');
+    const editBtn = document.getElementById('edit-button');
+
+    async function doFetch() {
+      const params = new URLSearchParams({
+        city: form.city.value,
+        familySize: form.familySize.value,
+        parkingType: form.parkingType.value,
+        priority: form.priority.value,
+        budget: form.budget.value
+      });
+      formContainer.innerHTML = '<p>Finding your ideal car…</p>';
+      try {
+        const res = await fetch('https://growth.truebusinessdesign.com/webhook/7e9888d6-a40f-40b3-b34b-d1e7f940cb22?' + params);
+        const data = await res.json();
+        formContainer.style.display = 'none';
+        editBtn.style.display = 'block';
+        if (Array.isArray(data.recommendations) && data.recommendations.length) {
+          results.innerHTML = data.recommendations.map(item => item.htmlCard).join('');
+        } else {
+          results.innerHTML = '<p>Sorry, no matching cars found. Try adjusting your preferences.</p>';
+        }
+        results.style.display = 'block';
+      } catch {
+        results.innerHTML = '<p>Error fetching data. Please try again.</p>';
+        results.style.display = 'block';
+      }
+    }
+
+    form.addEventListener('submit', e => { e.preventDefault(); doFetch(); });
+    editBtn.addEventListener('click', () => {
+      formContainer.style.display = 'block';
+      document.getElementById('car-form').reset();
+      results.style.display = 'none';
+      editBtn.style.display = 'none';
+    });
+  </script>
+</body>
+</html>
