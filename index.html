@@ -98,19 +98,28 @@
         const data = await res.json();
         console.log('Webhook response:', data);
         let recs = [];
-        // Handle streaming OpenAI-style payload
+        // 1) n8n streaming OpenAI payload (array of messages)
         if (Array.isArray(data) && data[0].message && data[0].message.content) {
-          try {
-            const payload = JSON.parse(data[0].message.content);
-            recs = payload.recommendations || [];
-          } catch (e) {
-            console.error('Failed to parse streaming payload:', e);
+          let content = data[0].message.content;
+          let obj;
+          if (typeof content === 'string') {
+            try {
+              obj = JSON.parse(content);
+            } catch (e) {
+              console.error('Failed to parse streaming payload:', e);
+            }
+          } else {
+            obj = content; // already object
           }
-        } else {
-          // Fallback to normal format
-          recs = Array.isArray(data)
-            ? (data[0].recommendations || [])
-            : (data.recommendations || []);
+          recs = (obj && obj.recommendations) || [];
+        }
+        // 2) direct payload under "content"
+        else if (data.content && Array.isArray(data.content.recommendations)) {
+          recs = data.content.recommendations;
+        }
+        // 3) fallback to top-level recommendations
+        else if (Array.isArray(data.recommendations)) {
+          recs = data.recommendations;
         }
         formContainer.style.display = 'none';
         editBtn.style.display = 'block';
