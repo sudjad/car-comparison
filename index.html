@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -98,10 +96,14 @@
       try {
         const res = await fetch('https://growth.truebusinessdesign.com/webhook/7e9888d6-a40f-40b3-b34b-d1e7f940cb22?' + params);
         const data = await res.json();
+        console.log('Webhook response:', data);
+        let recs = Array.isArray(data)
+          ? (data[0].recommendations || [])
+          : (data.recommendations || []);
         formContainer.style.display = 'none';
         editBtn.style.display = 'block';
-        if (Array.isArray(data.recommendations) && data.recommendations.length) {
-          results.innerHTML = data.recommendations.map(item => item.htmlCard).join('');
+        if (recs.length) {
+          results.innerHTML = recs.map(item => item.htmlCard).join('');
         } else {
           results.innerHTML = '<p>Sorry, no matching cars found. Try adjusting your preferences.</p>';
         }
