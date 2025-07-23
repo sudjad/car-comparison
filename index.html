@@ -94,7 +94,7 @@
       });
       formContainer.innerHTML = '<p>Finding your ideal car…</p>';
       try {
-        const res = await fetch('https://growth.truebusinessdesign.com/webhook-test/7e9888d6-a40f-40b3-b34b-d1e7f940cb22?' + params);
+        const res = await fetch('https://growth.truebusinessdesign.com/webhook/7e9888d6-a40f-40b3-b34b-d1e7f940cb22?' + params);
         const data = await res.json();
         console.log('Webhook response:', data);
         let recs = [];
