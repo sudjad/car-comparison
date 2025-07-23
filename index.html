@@ -113,14 +113,21 @@
           }
           recs = (obj && obj.recommendations) || [];
         }
-        // 2) direct payload under "content"
+        // 2) payload under data.message.content (OpenAI response)
+        else if (data.message 
+                 && data.message.content 
+                 && Array.isArray(data.message.content.recommendations)) {
+          recs = data.message.content.recommendations;
+        }
+        // 3) direct payload under data.content
         else if (data.content && Array.isArray(data.content.recommendations)) {
           recs = data.content.recommendations;
         }
-        // 3) fallback to top-level recommendations
+        // 4) fallback to top-level recommendations
         else if (Array.isArray(data.recommendations)) {
           recs = data.recommendations;
         }
+        console.log('Parsed recs:', recs.length, recs);
         formContainer.style.display = 'none';
         editBtn.style.display = 'block';
         if (recs.length) {
